@@ -363,8 +363,6 @@ class Application extends Container implements HttpKernelInterface, ResponsePrep
 	 */
 	public function loadDeferredProviders()
 	{
-		$me = $this;
-
 		// We will simply spin through each of the deferred providers and register each
 		// one and boot them if the application has booted. This should make each of
 		// the remaining services available to this application for immediate use.
@@ -385,14 +383,7 @@ class Application extends Container implements HttpKernelInterface, ResponsePrep
 	protected function loadDeferredProvider($service)
 	{
 		$provider = $this->deferredServices[$service];
-
-		// If the service provider has not already been loaded and registered we can
-		// register it with the application and remove the service from this list
-		// of deferred services, since it will already be loaded on subsequent.
-		if ( ! isset($this->loadedProviders[$provider]))
-		{
-			$this->registerDeferredProvider($provider, $service);
-		}
+		$this->registerDeferredProvider($provider, $service);
 	}
 
 	/**
@@ -404,6 +395,11 @@ class Application extends Container implements HttpKernelInterface, ResponsePrep
 	 */
 	protected function registerDeferredProvider($provider, $service = null)
 	{
+		// skip this method, if the service provider is already loaded.
+		if (isset($this->loadedProviders[$provider])) {
+			return;
+		}
+
 		$this->register($instance = new $provider($this));
 
 		// Once the provider that provides the deferred service has been registered we
