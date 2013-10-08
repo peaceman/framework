@@ -333,6 +333,12 @@ class Application extends Container implements HttpKernelInterface, ResponsePrep
 			$provider = $this->resolveProviderClass($provider);
 		}
 
+		// Skip service provider registration of already registered service providers
+		if (isset($this->loadedProviders[get_class($provider)]))
+		{
+			return;
+		}
+
 		$provider->register();
 
 		// Once we have registered the service we will iterate through the options
